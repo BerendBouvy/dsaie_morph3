@@ -1,0 +1,29 @@
+# .gitignore is a file that tells Git which files (or patterns) it should ignore.
+# This is useful to avoid committing temporary files, build artifacts, or sensitive information.
+
+# To ignore a file or directory, simply add its name or path relative to the root of the repository.
+# For example, to ignore a file named 'secret.txt', add:
+# secret.txt
+
+# To ignore all files with a specific extension, use the wildcard '*'.
+# For example, to ignore all .log files, add:
+# *.log
+
+# To ignore a directory and all its contents, add a trailing slash.
+# For example, to ignore a directory named 'build', add:
+# build/
+
+# To ignore files or directories in a specific subdirectory, specify the path.
+# For example, to ignore all .tmp files in the 'temp' directory, add:
+# temp/*.tmp
+
+# To unignore a file or directory that was previously ignored, use the '!' character.
+# For example, to ignore all .log files except 'important.log', add:
+# *.log
+# !important.log
+
+# Comments can be added to the .gitignore file by starting the line with a '#'.
+# These comments are ignored by Git and can be used to explain the purpose of the rules.
+# For example:
+# ignore data folder:
+data/
