@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy.ndimage import convolve
+from numpy import floor
 
 def amount_of_water_in_range(data, distance):
     """
@@ -28,11 +29,15 @@ def distance_to_water(data, pixel_size):
     Function to calculate the distance to the nearest water pixel for the center of each land pixel 
     :param data: 2D numpy array of the image containing binary values (0 or 1) with 1 representing water and 0 representing land
     :param pixel_size: Size of each pixel in meters
-    :return: 2D numpy array with the distance to the nearest water pixel for each land pixel
+    :return distance_water: 2D numpy array with the distance to the nearest water pixel for each land pixel
+    :return nearest_water_pixel: 3D numpy array with indices of the nearest water pixel for each land pixel
     """
 
     # Create a 2D numpy array of zeros with the same shape as the input data
     distance_water = np.zeros(data.shape)
+
+    # Create a 3D numpy array to store the indices of the nearest water pixel for each land pixel
+    nearest_water_pixel = np.zeros((data.shape[0], data.shape[1], 2), dtype=int)
 
     # Find the indices of the water pixels
     water_indices = np.argwhere(data == 1)
@@ -47,7 +52,12 @@ def distance_to_water(data, pixel_size):
                 # Convert the distance from pixels to meters
                 distance_water[i, j] = min_distance * pixel_size
 
-    return distance_water
+                # Find the indices of the nearest water pixels
+                nearest_indices = np.argwhere(distances == min_distance)
+                nearest_water_pixel[i,j] = water_indices[nearest_indices[0],:]
+
+
+    return distance_water, nearest_water_pixel
 
 def angle_to_water(data):
     """
@@ -76,18 +86,18 @@ def angle_to_water(data):
                 angle = np.arctan2(vectors[nearest_index, 1], vectors[nearest_index, 0])
                 # Convert the angle from radians to degrees
                 angle_degrees = np.degrees(angle)
-                # Adjust the angle to be in the range [0, 360]
-                water_direction[i, j] = (angle_degrees + 360) % 360
+                # Store the angle in the water_direction array
+                water_direction[i, j] = angle_degrees
 
     return water_direction
 
-def width_of_river(data, water_direction, distance_water, water_in_range, pixel_size):
+def width_of_river(data, water_direction, nearest_water_pixel, water_in_range, pixel_size):
     """
     Functions which calculates the width of the river in meters extending from the closest water pixel to the land pixel 
     till it meets a new land pixel in the same direction.
     :param data: 2D numpy array of the image containing binary values (0 or 1) with 1 representing water and 0 representing land
     :param water_direction: 2D numpy array with the angle to the nearest water pixel for each land pixel
-    :param distance_water: 2D numpy array with the distance to the nearest water pixel for each land pixel
+    :param nearest_water_pixel: 3D numpy array with the indices of the nearest water pixel for each land pixel
     :param water_in_range: 2D numpy array with the number of water pixels in the given distance range of each pixel
     :param pixel_size: Size of each pixel in meters
     :return: 2D numpy array with the width of the river in meters
@@ -109,30 +119,38 @@ def width_of_river(data, water_direction, distance_water, water_in_range, pixel_
             # Calculate the vector from the land pixel to the nearest water pixel
             vector = np.array([np.cos(np.radians(direction)), np.sin(np.radians(direction))])
 
-            # Initialize the river width
-            dx = 0
-            dy = 0
+            # Initialize the coordinates of the water source closest to the current pixel
+            x, y = nearest_water_pixel[i, j, 0], nearest_water_pixel[i, j, 1]
 
-            # Initialize the coordinates of the current pixel
-            x, y = i, j
+            # Store the coordinates of the current pixel
+            x_start, y_start = x, y
+
+            # Set the center of the pixel as the starting position
+            x = x+0.5
+            y = y+0.5
 
             # Loop until a new land pixel is encountered in the same direction
             while True:
                 # Calculate the coordinates of the next pixel in the direction of the water flow
+                x_prev, y_prev = x, y
                 x += vector[0]
                 y += vector[1]
                 # Check if the next pixel is within the image bounds
                 if x < 0 or x >= data.shape[0] or y < 0 or y >= data.shape[1]:
                     break
-                # Check if the integer of the 
-                # Check if the next pixel is land
-                if data[int(x), int(y)] == 0:
-                    break
-                # Increment the river width
-                dx += vector[0]
-                dy += vector[1] 
+
+                # Check if the integer of the coordinates has changed
+                elif int(floor(x)) != int(floor(x_prev)) or int(floor(y)) != int(floor(y_prev)):
+                    # Check if the next pixel is land
+                    if data[int(floor(x)), int(floor(y))] == 0:
+                        break
+                else:
+                    continue
+            
+            # Coordinates of the new land pixel in the same direction
+            x_end, y_end = floor(x), floor(y)
 
             # Convert the river width from pixels to meters
-            river_width[i, j] = np.sqrt(dx**2 + dy**2) * pixel_size
+            river_width[i, j] = np.sqrt((x_end-x_start)**2 + (y_end-y_start)**2) * pixel_size
 
     return river_width
