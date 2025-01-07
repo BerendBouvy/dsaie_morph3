@@ -10,6 +10,7 @@ def amount_of_water_in_range(data, distance):
     :param distance: Number of pixels in each direction from the target pixel to consider
     :return: 2D numpy array with the number of water pixels in the given distance range of each pixel
     """
+    water = data == 1
 
     # Create a 2D numpy array of zeros with the same shape as the input data
     water_in_range = np.zeros(data.shape)
@@ -21,8 +22,23 @@ def amount_of_water_in_range(data, distance):
 
     # Perform the convolution using scipy.ndimage.convolve
     water_in_range = convolve(data, kernel, mode='constant', cval=0.0)
+    water_in_range[water == 1] = 0  # Exclude the water pixels
 
     return water_in_range
+
+
+def mask_water(data, distance):
+    """
+    Function to mask the water pixels in a given distance range of each pixel
+    :param data: 2D numpy array of the image containing binary values (0 or 1) with 1 representing water and 0 representing land
+    :param distance: Number of pixels in each direction from the target pixel to consider
+    :return masked_data: 2D numpy array with the water pixels in the given distance range of each pixel masked
+    :return water_in_range: 2D numpy array with the number of water pixels in the given distance range of each pixel
+    """
+    water_in_range = amount_of_water_in_range(data, distance)
+    masked_data = water_in_range > 0
+    indices = np.argwhere(masked_data)
+    return masked_data, water_in_range, indices
 
 def distance_to_water(data, pixel_size):
     """
