@@ -125,48 +125,60 @@ def width_of_river(data, water_direction, nearest_water_pixel, water_in_range, p
     # Create a 2D numpy array of zeros with the same shape as the input data
     river_width = np.zeros(data.shape)
 
+    # Create direction modfier array
+    direction_step = 15
+    direction_modifier = np.arange(-45, 45 + direction_step, direction_step)
+
     # Loop over each land pixel with water in range
     for i, j in land_indices:
         if water_in_range[i, j] > 0:
 
             # Calculate the direction of the water flow
-            direction = water_direction[i, j]
+            direction_real = water_direction[i, j]
+            direction_range = direction_modifier + direction_real
 
-            # Calculate the vector from the land pixel to the nearest water pixel
-            vector = np.array([np.cos(np.radians(direction)), np.sin(np.radians(direction))])
+            # Initialize the river width for the current pixel
+            width = []
 
-            # Initialize the coordinates of the water source closest to the current pixel
-            x, y = nearest_water_pixel[i, j, 0], nearest_water_pixel[i, j, 1]
+            for direction in direction_range:
+                # Calculate the vector from the land pixel to the nearest water pixel
+                vector = np.array([np.cos(np.radians(direction)), np.sin(np.radians(direction))])
 
-            # Store the coordinates of the current pixel
-            x_start, y_start = x, y
+                # Initialize the coordinates of the water source closest to the current pixel
+                x, y = nearest_water_pixel[i, j, 0], nearest_water_pixel[i, j, 1]
 
-            # Set the center of the pixel as the starting position
-            x = x+0.5
-            y = y+0.5
+                # Store the coordinates of the current pixel
+                x_start, y_start = x, y
 
-            # Loop until a new land pixel is encountered in the same direction
-            while True:
-                # Calculate the coordinates of the next pixel in the direction of the water flow
-                x_prev, y_prev = x, y
-                x += vector[0]
-                y += vector[1]
-                # Check if the next pixel is within the image bounds
-                if x < 0 or x >= data.shape[0] or y < 0 or y >= data.shape[1]:
-                    break
+                # Set the center of the pixel as the starting position
+                x = x+0.5
+                y = y+0.5
 
-                # Check if the integer of the coordinates has changed
-                elif int(floor(x)) != int(floor(x_prev)) or int(floor(y)) != int(floor(y_prev)):
-                    # Check if the next pixel is land
-                    if data[int(floor(x)), int(floor(y))] == 0:
+                # Loop until a new land pixel is encountered in the same direction
+                while True:
+                    # Calculate the coordinates of the next pixel in the direction of the water flow
+                    x_prev, y_prev = x, y
+                    x += vector[0]
+                    y += vector[1]
+                    # Check if the next pixel is within the image bounds
+                    if x < 0 or x >= data.shape[0] or y < 0 or y >= data.shape[1]:
                         break
-                else:
-                    continue
-            
-            # Coordinates of the new land pixel in the same direction
-            x_end, y_end = floor(x), floor(y)
 
-            # Convert the river width from pixels to meters
-            river_width[i, j] = np.sqrt((x_end-x_start)**2 + (y_end-y_start)**2) * pixel_size
+                    # Check if the integer of the coordinates has changed
+                    elif int(floor(x)) != int(floor(x_prev)) or int(floor(y)) != int(floor(y_prev)):
+                        # Check if the next pixel is land
+                        if data[int(floor(x)), int(floor(y))] == 0:
+                            break
+                    else:
+                        continue
+                
+                # Coordinates of the new land pixel in the same direction
+                x_end, y_end = floor(x), floor(y)
+
+                # Convert the river width from pixels to meters
+                width_temp = np.sqrt((x_end-x_start)**2 + (y_end-y_start)**2) * pixel_size
+                width.append(width_temp)
+            
+            river_width[i, j] = np.min(width)
 
     return river_width
