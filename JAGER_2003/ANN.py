@@ -133,3 +133,44 @@ def optimParameters(
     print(f"Final epoch: {epoch}, loss: {val_loss}, best model at epoch {best_epoch} with loss {best_loss}")
 
     return best_model, best_loss
+
+def createDataLoader(dataset, batch_size=8, generator=False):
+    """
+    This Function splits the dataset in a training and validation dataset. And returns them in dataloaders.
+
+    Parameters
+    ----------
+    dataset 
+        Dataset used to create model.
+    batch_size : int, optional
+        Size of the batches created for the dataloader, by default 8
+    generator : bool, optional
+        Use a see for the random_split for testing purposes, by default None
+
+    Returns
+    -------
+    train_loader : torch.utils.data.dataloader.DataLoader
+        Dataloader containing the training dataset in batches
+    val_loader : torch.utils.data.dataloader.Dataloader
+        Dataloader containing the validation dataset in batches
+    """
+    # Split dataset into a training and validation set
+    train_split = int(0.8 * len(dataset))
+    val_split = len(dataset) - train_split
+
+    # For testing Generator can be used to create a DataLoader else no generator
+    if generator == True:
+        generator_1 = torch.Generator().manual_seed(0)
+        train_set, val_set = torch.utils.data.random_split(
+            dataset, [train_split, val_split], generator_1
+        )
+    else:
+        train_set, val_set = torch.utils.data.random_split(
+            dataset, [train_split, val_split]
+        )
+    
+    #Create dataloaders
+    train_loader = DataLoader(train_set, batchsize=batch_size, shuffle=True)
+    val_loader = DataLoader(val_set, batchsize=batch_size, shuffle=False)
+
+    return train_loader, val_loader
