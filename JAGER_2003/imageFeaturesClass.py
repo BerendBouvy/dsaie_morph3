@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.ndimage import convolve
+from scipy.ndimage import convolve, distance_transform_edt
+import pandas as pd
+
 
 
 
@@ -97,13 +99,48 @@ class ImageFeatures:
             distances.append(distances_i[closest_pixel_ind])
             angles.append(self.angle_between_points(i[0], i[1], closest_pixel[0], closest_pixel[1]))
         
+        water_in_range = water_in_range[indices[:, 0], indices[:, 1]]
+
         return indices, locations, distances, angles, water_in_range
 
     def next_year_water(self, ind):
         return self.image_next_year[ind[0], ind[1]]
 
+    def river_width(self):
+        edt, ind = distance_transform_edt(self.image, return_indices=True)
+        
+        river_width = np.zeros_like(self.image)
+        for i in range(self.image.shape[0]):
+            for j in range(self.image.shape[1]):
+                if edt[i, j] > river_width[ind[0, i, j], ind[1, i, j]]:
+                    river_width[ind[0, i, j], ind[1, i, j]] = edt[i, j]
+        plt.imshow(river_width)
+        plt.show()
+        river_width = river_width * 2
+        return river_width
+
+
+
     def get_features(self):
         indices, locations, distances, angles, water_in_range = self.closest_water_pixel()
+
         next_year_water = [self.next_year_water(i) for i in indices]
-        return next_year_water, water_in_range, distances, np.sin(angles), np.cos(angles)
+        river_width = self.river_width()
+        highest_values = []
+        for i in locations:
+            x, y = i
+            x_min, x_max = max(0, x - 2), min(self.image.shape[0], x + 3)
+            y_min, y_max = max(0, y - 2), min(self.image.shape[1], y + 3)
+            highest_values.append(np.max(river_width[x_min:x_max, y_min:y_max]))
+
+
+        df = pd.DataFrame({ 'year': [self.year] * len(indices), 'area': [self.area] * len(indices),
+                            'index_x': indices[:, 0], 'index_y': indices[:, 1],
+                            'distance': distances, 'sin_angle': np.sin(angles), 
+                            'cos_angle': np.cos(angles), 'river_width': highest_values,
+                            'water_in_range': water_in_range, 'next_year_water': next_year_water})
+        return df
+
+    
+
     
