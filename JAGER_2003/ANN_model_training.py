@@ -105,9 +105,9 @@ if __name__ == "__main__":
     # Ask input folder
     # Due to skewed dataset, the undersampled dataset will be used for training,
     # The full dataset is used to extract the test data
-    path = input("Please enter the location indicator as test_r? or training_r?: ")
-    path = f"JAGER_2003/{path}_data/merged_features.csv"
-    path2 = f"JAGER_2003/{path}_data/undersampled_merged_features.csv"
+    path_loc = input("Please enter the location indicator as test_r? or training_r?: ")
+    path = f"JAGER_2003/{path_loc}_data/merged_features.csv"
+    path2 = f"JAGER_2003/{path_loc}_data/undersampled_merged_features.csv"
     
     # Set model parameters
     model_params = {
