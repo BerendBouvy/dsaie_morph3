@@ -157,7 +157,7 @@ def createDataLoader(dataset, batch_size=8, generator=False):
     val_split = len(dataset) - train_split
 
     # For testing Generator can be used to create a DataLoader else no generator
-    if generator == True:
+    if generator is True:
         generator_1 = torch.Generator().manual_seed(0)
         train_set, val_set = torch.utils.data.random_split(
             dataset, [train_split, val_split], generator_1
@@ -168,7 +168,7 @@ def createDataLoader(dataset, batch_size=8, generator=False):
         )
     
     #Create dataloaders
-    train_loader = DataLoader(train_set, batchsize=batch_size, shuffle=True)
-    val_loader = DataLoader(val_set, batchsize=batch_size, shuffle=False)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
 
     return train_loader, val_loader
