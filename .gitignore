@@ -28,3 +28,4 @@
 # ignore data folder:
 data/
 *.pyc
+JAGER_2003/__pycache__/
