@@ -33,15 +33,15 @@ def train_models(path, path2, model_params, test_year):
     data_training = data[data['year'] != test_year]
 
     # Normalize the features in the dataset per feature
-    X = torch.tensor(data_training[features].values, dtype=torch.float32)
+    X = torch.tensor(data_training[features].values, dtype=torch.float32).to(device)
     X_normalizer = normUnitvar(X)
 
-    X_test = torch.tensor(data_test[features].values, dtype=torch.float32)
+    X_test = torch.tensor(data_test[features].values, dtype=torch.float32).to(device)
     X_test_norm = X_normalizer.normalize(X_test)
 
     # Store the Targets in a tensor
-    targets = torch.tensor(data_training[target_variable].values, dtype=torch.int8)
-    T_test = torch.tensor(data_test[target_variable].values, dtype=torch.int8)
+    targets = torch.tensor(data_training[target_variable].values, dtype=torch.int8).to(device)
+    T_test = torch.tensor(data_test[target_variable].values, dtype=torch.int8).to(device)
 
     # Create a new dataset with the normalized features
     X_norm = X_normalizer.normalize(X)
@@ -74,16 +74,20 @@ def train_models(path, path2, model_params, test_year):
                     best_metrics = metrics
                     
 
-            print(f"For {h_layers} hidden layers and {h_nodes} nodes,\n")
-            print(f"the best lambda={best_lambda} with a loss of{min_loss}.\n")
+            print(f"For {h_layers} hidden layers and {h_nodes} nodes,")
+            print(f"the best lambda={best_lambda} with a loss of {min_loss}.\n")
 
             # Determine the test loss
-            t_hat = best_model(X_test_norm.to(device))
+            t_hat = best_model(X_test_norm)
             test_loss = cross_entropy(t_hat, T_test)
             print(f"Test loss for the best model is: {test_loss}")
 
             # Save the predictions vs the actual values
-            df_predictions = pd.DataFrame({'Targets': T_test.numpy(), 'Predictions': t_hat.numpy()})
+            df_predictions = pd.DataFrame({
+                'Targets': T_test.cpu().numpy(), 
+                'Predictions': t_hat.cpu().numpy()
+                })
+            
             df_predictions.to_csv(f"models/predictions_{h_layers}_{h_nodes}_{best_lambda}.csv")
 
             # Save the best model and the metrics
