@@ -47,7 +47,7 @@ def train_models(path, path2, model_params, test_year):
     X_norm = X_normalizer.normalize(X)
 
     # Create a new dataset with the normalized features and the targets
-    train_loader, val_loader = createDataLoader(torch.utils.data.TensorDataset(X_norm, targets), batch_size=64)
+    train_loader, val_loader = createDataLoader(torch.utils.data.TensorDataset(X_norm, targets), batch_size=256)
 
     min_loss = 1e9
     best_lambda = 0
@@ -80,12 +80,13 @@ def train_models(path, path2, model_params, test_year):
             # Determine the test loss
             t_hat = best_model(X_test_norm)
             test_loss = cross_entropy(t_hat, T_test)
+            test_loss = test_loss.cpu().detach().numpy()
             print(f"Test loss for the best model is: {test_loss}")
 
             # Save the predictions vs the actual values
             df_predictions = pd.DataFrame({
-                'Targets': T_test.cpu().detach().numpy(), 
-                'Predictions': t_hat.cpu().detach().numpy(),
+                'Targets': T_test.cpu().detach().numpy().tolist(), 
+                'Predictions': t_hat.cpu().detach().numpy().tolist(),
                 'index_x': data_test['index_x'].values,
                 'index_y': data_test['index_y'].values
                 })
@@ -113,11 +114,11 @@ if __name__ == "__main__":
     
     # Set model parameters
     model_params = {
-        'lambda': [0.001],   # Array of regularization parameters
+        'lambda': [0, 0.001, 0.01],   # Array of regularization parameters
         'input_dim': 5,       # Number of input features
         'output_dim': 1,      # Number of outputs
-        'hidden_layers': [1],   # Array of number of hidden layers to be tested
-        'hidden_nodes': [5],    # Array of number of nodes in hidden layers to be tested
+        'hidden_layers': [1, 10, 25],   # Array of number of hidden layers to be tested
+        'hidden_nodes': [5, 20, 50],    # Array of number of nodes in hidden layers to be tested
         'activation': 'relu',   # Activation function for neurel network
         'learning_rate': 0.01   # Learning rate for the optimizer
     }

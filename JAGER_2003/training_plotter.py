@@ -18,7 +18,7 @@ def plot_training(metrics, hidden_layers, hidden_nodes, lambda_value, test_loss)
         Loss of the model on the test set
     """
 
-    epochs = np.arrange(0,len(metrics['train_loss']))
+    epochs = np.arange(0,len(metrics['train_loss']))
     train_loss = metrics['train_loss']
     val_loss = metrics['val_loss']
 

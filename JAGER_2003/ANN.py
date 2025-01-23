@@ -114,7 +114,7 @@ def optimParameters(
             adam.zero_grad()
             loss.backward()
             adam.step()
-        metrics_temp['train_loss'].append(loss)
+        metrics_temp['train_loss'].append(loss.cpu().detach().numpy().tolist())
 
         # Validation data
         val_loss = 0
@@ -122,7 +122,7 @@ def optimParameters(
             inputs, targets = data
             outputs = model(inputs.to(device))
             val_loss += cross_entropy(outputs, targets.to(device))
-        metrics_temp['val_loss'].append(val_loss)
+        metrics_temp['val_loss'].append(val_loss.cpu().detach().numpy().tolist())
 
         # Compare current model with best model
         if val_loss < best_loss:
@@ -135,7 +135,7 @@ def optimParameters(
         if epoch > best_epoch + 50:
             break
 
-        if epoch % 20 == 0:
+        if epoch % 2 == 0:
             print(f"Epoch: {epoch}, Validation Loss: {val_loss}")
 
     print(f"Final epoch: {epoch}, loss: {val_loss}, best model at epoch {best_epoch} with loss {best_loss}")
