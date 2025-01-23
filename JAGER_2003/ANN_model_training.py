@@ -6,7 +6,7 @@ import pandas as pd
 import pickle
 from training_plotter import plot_training
 
-def train_models(path, model_params, test_year):
+def train_models(path, path2, model_params, test_year):
     
     # Check if GPU is available
     if torch.cuda.is_available():
@@ -25,10 +25,11 @@ def train_models(path, model_params, test_year):
     learning_rate = model_params['learning_rate']
 
     # Load dataset
-    data = pd.read_csv(path)
+    data = pd.read_csv(path2)
+    data_test = pd.read_csv(path)
     features = ['distance', 'sin_angle', 'cos_angle', 'river_width', 'water_in_range'] 
     target_variable = ['next_year_water']
-    data_test = data[data['year'] == test_year]
+    data_test = data_test[data['year'] == test_year]
     data_training = data[data['year'] != test_year]
 
     # Normalize the features in the dataset per feature
@@ -97,13 +98,16 @@ def train_models(path, model_params, test_year):
         pickle.dump(X_normalizer, output, pickle.HIGHEST_PROTOCOL)    
 
 if __name__ == "__main__":
-    # ask input folder
-    path = input("Please enter the location indicator as testing_r? or training_r?: ")
-    path = f"data/satellite/averages/average_{path}/merged_features.csv"
+    # Ask input folder
+    # Due to skewed dataset, the undersampled dataset will be used for training,
+    # The full dataset is used to extract the test data
+    path = input("Please enter the location indicator as test_r? or training_r?: ")
+    path = f"JAGER_2003/{path}_data/merged_features.csv"
+    path2 = f"JAGER_2003/{path}_data/undersampled_merged_features.csv"
     
     # Set model parameters
     model_params = {
-        'lambda': [0, 0.005],   # Array of regularization parameters
+        'lambda': [0.001],   # Array of regularization parameters
         'input_dim': 5,       # Number of input features
         'output_dim': 1,      # Number of outputs
         'hidden_layers': [1],   # Array of number of hidden layers to be tested
@@ -115,4 +119,4 @@ if __name__ == "__main__":
     # Select the year to be used as test data
     test_year = input("Please enter the test year: ") 
 
-    train_models(path, model_params, test_year)
+    train_models(path, path2, model_params, test_year)
