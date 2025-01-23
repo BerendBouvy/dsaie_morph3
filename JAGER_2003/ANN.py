@@ -91,13 +91,19 @@ def optimParameters(
     :param n_epochs: int, number of training epochs (default=2000)
     :return best_model: nn.Module, neural network model with the best validation loss
     :return best_loss: float, best validation loss
+    :return metrics: dict, dictionary of training and validation loss
     """
     # Initialize the optimizer
-    adam = torch.optim.Adam(params, lr=0.001, weight_decay=lambda_val)
+    adam = torch.optim.Adam(params, lr=0.01, weight_decay=lambda_val)
     best_loss = 1e10 # High enough to always be lowered by the first loss
 
-    # Train the model
+        # Train the model
     for epoch in range(n_epochs):
+        # Initialize Metrics
+        metrics_temp = {
+            'train_loss': [],
+            'val_loss': []
+        }
         # Training data
         for data in train_loader:
             inputs, targets = data
@@ -107,6 +113,7 @@ def optimParameters(
             adam.zero_grad()
             loss.backward()
             adam.step()
+        metrics_temp['train_loss'].append(loss)
 
         # Validation data
         val_loss = 0
@@ -114,23 +121,25 @@ def optimParameters(
             inputs, targets = data
             outputs = model(inputs)
             val_loss += cross_entropy(outputs, targets)
+        metrics_temp['val_loss'].append(val_loss)
 
         # Compare current model with best model
         if val_loss < best_loss:
             best_loss = val_loss
             best_model = copy.deepcopy(model)
             best_epoch = epoch
+            metrics = metrics_temp
 
         # Check for improvements for 50 epochs
         if epoch > best_epoch + 50:
             break
 
-        if epoch % 200 == 0:
+        if epoch % 50 == 0:
             print(f"Epoch: {epoch}, Validation Loss: {val_loss}")
 
     print(f"Final epoch: {epoch}, loss: {val_loss}, best model at epoch {best_epoch} with loss {best_loss}")
 
-    return best_model, best_loss
+    return best_model, best_loss, metrics
 
 def createDataLoader(dataset, batch_size=8, generator=False):
     """
