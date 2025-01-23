@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 def plot_training(metrics, hidden_layers, hidden_nodes, lambda_value, test_loss):
     """Function to create a plot of the training and validation loss for a given model and store the plot.
