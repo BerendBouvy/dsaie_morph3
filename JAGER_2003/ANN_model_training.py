@@ -85,7 +85,9 @@ def train_models(path, path2, model_params, test_year):
             # Save the predictions vs the actual values
             df_predictions = pd.DataFrame({
                 'Targets': T_test.cpu().numpy(), 
-                'Predictions': t_hat.cpu().numpy()
+                'Predictions': t_hat.cpu().numpy(),
+                'index_x': data_test['index_x'].values,
+                'index_y': data_test['index_y'].values
                 })
             
             df_predictions.to_csv(f"models/predictions_{h_layers}_{h_nodes}_{best_lambda}.csv")
