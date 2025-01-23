@@ -29,7 +29,7 @@ def train_models(path, path2, model_params, test_year):
     data_test = pd.read_csv(path)
     features = ['distance', 'sin_angle', 'cos_angle', 'river_width', 'water_in_range'] 
     target_variable = ['next_year_water']
-    data_test = data_test[data['year'] == test_year]
+    data_test = data_test[data_test['year'] == test_year]
     data_training = data[data['year'] != test_year]
 
     # Normalize the features in the dataset per feature
