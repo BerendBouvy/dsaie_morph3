@@ -79,7 +79,7 @@ def cross_entropy(y, t):
     return c_e
 
 def optimParameters(
-        model, params, train_loader, val_loader, lambda_val = 0.01, n_epochs = 2000
+        model, params, train_loader, val_loader, lambda_val = 0.01, n_epochs = 2000, learning_rate = 0.01
     ):
     """
     Function to optimize the parameters of a neural network model using the Adam optimizer.
@@ -94,7 +94,7 @@ def optimParameters(
     :return metrics: dict, dictionary of training and validation loss
     """
     # Initialize the optimizer
-    adam = torch.optim.Adam(params, lr=0.01, weight_decay=lambda_val)
+    adam = torch.optim.Adam(params, lr=learning_rate, weight_decay=lambda_val)
     best_loss = 1e10 # High enough to always be lowered by the first loss
 
         # Train the model
@@ -102,7 +102,8 @@ def optimParameters(
         # Initialize Metrics
         metrics_temp = {
             'train_loss': [],
-            'val_loss': []
+            'val_loss': [],
+            'best_epoch': 0
         }
         # Training data
         for data in train_loader:
@@ -134,10 +135,13 @@ def optimParameters(
         if epoch > best_epoch + 50:
             break
 
-        if epoch % 50 == 0:
+        if epoch % 20 == 0:
             print(f"Epoch: {epoch}, Validation Loss: {val_loss}")
 
     print(f"Final epoch: {epoch}, loss: {val_loss}, best model at epoch {best_epoch} with loss {best_loss}")
+
+    # Store the best epoch in metrics        
+    metrics['best_epoch'] = best_epoch
 
     return best_model, best_loss, metrics
 
