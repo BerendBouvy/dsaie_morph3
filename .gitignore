@@ -27,3 +27,4 @@
 # For example:
 # ignore data folder:
 data/
+*.pyc
