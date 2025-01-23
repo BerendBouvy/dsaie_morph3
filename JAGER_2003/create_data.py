@@ -1,5 +1,6 @@
 import imageFeaturesClass as ifc
 import os
+import pandas as pd
 
 def create_data(path):
     files = os.listdir(path)
@@ -11,8 +12,13 @@ def create_data(path):
         print(f"features_{file} created")
         
 
-    # write to csv
-
+def merge_files(path):
+    files = os.listdir(path)
+    feature_files = [file for file in files if 'features' in file]
+    dfs = [pd.read_csv(f"{path}/{file}") for file in feature_files]
+    merged_df = pd.concat(dfs, ignore_index=True)
+    merged_df.to_csv(f"{path}/merged_features.csv", index=False)
+    print("merged_features.csv created")
 
 
 
