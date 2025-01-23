@@ -79,7 +79,7 @@ def cross_entropy(y, t):
     return c_e
 
 def optimParameters(
-        model, params, train_loader, val_loader, lambda_val = 0.01, n_epochs = 2000, learning_rate = 0.01
+        model, params, train_loader, val_loader, lambda_val = 0.01, n_epochs = 2000, learning_rate = 0.01, device = 'cpu'
     ):
     """
     Function to optimize the parameters of a neural network model using the Adam optimizer.
@@ -108,8 +108,8 @@ def optimParameters(
         # Training data
         for data in train_loader:
             inputs, targets = data
-            outputs = model(inputs)
-            loss = cross_entropy(outputs, targets)
+            outputs = model(inputs.to(device))
+            loss = cross_entropy(outputs, targets.to(device))
 
             adam.zero_grad()
             loss.backward()
@@ -120,8 +120,8 @@ def optimParameters(
         val_loss = 0
         for data in val_loader:
             inputs, targets = data
-            outputs = model(inputs)
-            val_loss += cross_entropy(outputs, targets)
+            outputs = model(inputs.to(device))
+            val_loss += cross_entropy(outputs, targets.to(device))
         metrics_temp['val_loss'].append(val_loss)
 
         # Compare current model with best model

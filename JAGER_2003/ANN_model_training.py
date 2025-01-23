@@ -62,7 +62,7 @@ def train_models(path, path2, model_params, test_year):
                 w = model.parameters()
 
                 # Train model
-                model, val_loss, metrics = optimParameters(model, w, train_loader, val_loader, lambda_val, n_epochs=2000, learning_rate=learning_rate)
+                model, val_loss, metrics = optimParameters(model, w, train_loader, val_loader, lambda_val, n_epochs=2000, learning_rate=learning_rate, device=device)
 
                 print(f"Model with lambda = {lambda_val} has a loss of {val_loss}\n")
 
