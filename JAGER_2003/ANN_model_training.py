@@ -84,8 +84,8 @@ def train_models(path, path2, model_params, test_year):
 
             # Save the predictions vs the actual values
             df_predictions = pd.DataFrame({
-                'Targets': T_test.cpu().numpy(), 
-                'Predictions': t_hat.cpu().numpy(),
+                'Targets': T_test.cpu().detach().numpy(), 
+                'Predictions': t_hat.cpu().detach().numpy(),
                 'index_x': data_test['index_x'].values,
                 'index_y': data_test['index_y'].values
                 })
