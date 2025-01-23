@@ -100,6 +100,7 @@ def optimParameters(
     for epoch in range(n_epochs):
         # Training data
         for data in train_loader:
+            print(data)
             inputs, targets = data
             outputs = model(inputs)
             loss = cross_entropy(outputs, targets)
