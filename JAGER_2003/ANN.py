@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import copy
+import numpy as np
 
 class ANN(nn.Module):
     def __init__(self, input_dim, output_dim, hidden_layers=1, hidden_nodes=5, activation='relu'):
@@ -36,6 +37,16 @@ class ANN(nn.Module):
                 network.append(nn.ReLU())
             network.append(nn.Linear(self.hidden_nodes, self.output_dim))
 
+        elif activation == 'sigmoid':
+            
+            network = []
+            network.append(nn.Linear(self.input_dim, self.hidden_nodes))
+            network.append(nn.Sigmoid())
+            for i in range(self.hidden_layers-1):
+                network.append(nn.Linear(self.hidden_nodes, self.hidden_nodes))
+                network.append(nn.Sigmoid())
+            network.append(nn.Linear(self.hidden_nodes, self.output_dim))
+            
         else:
             print(f"Activation function {activation} not supported. \nCheck docs for supported activation functions.")    
 
@@ -44,7 +55,7 @@ class ANN(nn.Module):
     def forward(self, x):
         x = self.network(x)
         outputs = torch.sigmoid(x)
-
+        #outputs = torch.where(outputs < 0.5, torch.tensor(0), torch.tensor(1))
         return outputs
     
     def classify(self, x):
@@ -79,7 +90,7 @@ def cross_entropy(y, t):
     return c_e
 
 def optimParameters(
-        model, params, train_loader, val_loader, lambda_val = 0.01, n_epochs = 2000
+        model, params, train_loader, val_loader, lambda_val = 0.01, n_epochs = 2000, learning_rate = 0.01, device = 'cpu'
     ):
     """
     Function to optimize the parameters of a neural network model using the Adam optimizer.
@@ -91,46 +102,62 @@ def optimParameters(
     :param n_epochs: int, number of training epochs (default=2000)
     :return best_model: nn.Module, neural network model with the best validation loss
     :return best_loss: float, best validation loss
+    :return metrics: dict, dictionary of training and validation loss
     """
     # Initialize the optimizer
-    adam = torch.optim.Adam(params, lr=0.001, weight_decay=lambda_val)
+    adam = torch.optim.Adam(params, lr=learning_rate, weight_decay=lambda_val)
     best_loss = 1e10 # High enough to always be lowered by the first loss
 
-    # Train the model
+    metrics = {
+            'train_loss': [],
+            'val_loss': [],
+            'best_epoch': 0
+        }
+        # Train the model
     for epoch in range(n_epochs):
+        
         # Training data
+        train_loss = []
         for data in train_loader:
             inputs, targets = data
             outputs = model(inputs)
-            loss = cross_entropy(outputs, targets)
+            loss = torch.nn.BCELoss()(outputs.float(), targets.float())
 
             adam.zero_grad()
             loss.backward()
             adam.step()
+            train_loss.append(loss.cpu().detach().float())
+        metrics['train_loss'].append(np.mean(train_loss))
 
         # Validation data
-        val_loss = 0
+        val_loss = []
         for data in val_loader:
-            inputs, targets = data
-            outputs = model(inputs)
-            val_loss += cross_entropy(outputs, targets)
+            with torch.no_grad():
+                inputs, targets = data
+                outputs = model(inputs)
+                vloss = torch.nn.BCELoss()(outputs.float(), targets.float())
+                val_loss.append(vloss.cpu().detach().float())
+        metrics['val_loss'].append(np.mean(val_loss))
 
         # Compare current model with best model
-        if val_loss < best_loss:
-            best_loss = val_loss
+        if np.mean(val_loss) < best_loss:
+            best_loss = np.mean(val_loss)
             best_model = copy.deepcopy(model)
             best_epoch = epoch
-
+        
         # Check for improvements for 50 epochs
         if epoch > best_epoch + 50:
             break
 
-        if epoch % 200 == 0:
-            print(f"Epoch: {epoch}, Validation Loss: {val_loss}")
+        if epoch % 20 == 0:
+            print(f"Epoch: {epoch}, Validation Loss: {np.mean(val_loss)}")
 
-    print(f"Final epoch: {epoch}, loss: {val_loss}, best model at epoch {best_epoch} with loss {best_loss}")
+    print(f"Final epoch: {epoch}, loss: {np.mean(val_loss)}, best model at epoch {best_epoch} with loss {best_loss}")
 
-    return best_model, best_loss
+    # Store the best epoch in metrics        
+    metrics['best_epoch'] = best_epoch
+
+    return best_model, best_loss, metrics
 
 def createDataLoader(dataset, batch_size=8, generator=False):
     """
@@ -157,7 +184,7 @@ def createDataLoader(dataset, batch_size=8, generator=False):
     val_split = len(dataset) - train_split
 
     # For testing Generator can be used to create a DataLoader else no generator
-    if generator == True:
+    if generator is True:
         generator_1 = torch.Generator().manual_seed(0)
         train_set, val_set = torch.utils.data.random_split(
             dataset, [train_split, val_split], generator_1
@@ -168,7 +195,7 @@ def createDataLoader(dataset, batch_size=8, generator=False):
         )
     
     #Create dataloaders
-    train_loader = DataLoader(train_set, batchsize=batch_size, shuffle=True)
-    val_loader = DataLoader(val_set, batchsize=batch_size, shuffle=False)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
 
     return train_loader, val_loader
