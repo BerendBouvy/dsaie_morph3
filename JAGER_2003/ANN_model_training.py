@@ -23,6 +23,7 @@ def train_models(path, path2, model_params, test_year):
     hidden_nodes = model_params['hidden_nodes']
     activation_function = model_params['activation']
     learning_rate = model_params['learning_rate']
+    generator = model_params['generator']
 
     # Load dataset
     data = pd.read_csv(path2)
@@ -47,7 +48,7 @@ def train_models(path, path2, model_params, test_year):
     X_norm = X_normalizer.normalize(X)
 
     # Create a new dataset with the normalized features and the targets
-    train_loader, val_loader = createDataLoader(torch.utils.data.TensorDataset(X_norm, targets), batch_size=256)
+    train_loader, val_loader = createDataLoader(torch.utils.data.TensorDataset(X_norm, targets), batch_size=256, generator=generator)
 
     min_loss = 1e9
     best_lambda = 0
@@ -111,19 +112,21 @@ if __name__ == "__main__":
     path_loc = input("Please enter the location indicator as test_r? or training_r?: ")
     path = f"JAGER_2003/{path_loc}_data/merged_features.csv"
     path2 = f"JAGER_2003/{path_loc}_data/undersampled_merged_features.csv"
-    
+
     # Set model parameters
     model_params = {
-        'lambda': [0, 0.001, 0.01],   # Array of regularization parameters
+        'lambda': [0.001],   # Array of regularization parameters
         'input_dim': 5,       # Number of input features
         'output_dim': 1,      # Number of outputs
-        'hidden_layers': [1, 10, 25],   # Array of number of hidden layers to be tested
-        'hidden_nodes': [5, 20, 50],    # Array of number of nodes in hidden layers to be tested
+        'hidden_layers': [1],   # Array of number of hidden layers to be tested
+        'hidden_nodes': [5],    # Array of number of nodes in hidden layers to be tested
         'activation': 'relu',   # Activation function for neurel network
-        'learning_rate': 0.01   # Learning rate for the optimizer
+        'learning_rate': 0.01,   # Learning rate for the optimizer
+        'generator': True    # Use generator for data loader (True/False)
     }
 
     # Select the year to be used as test data
     test_year = input("Please enter the test year: ") 
+    test_year = int(test_year)
 
     train_models(path, path2, model_params, test_year)

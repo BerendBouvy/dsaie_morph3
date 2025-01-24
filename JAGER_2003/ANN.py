@@ -44,7 +44,6 @@ class ANN(nn.Module):
     def forward(self, x):
         x = self.network(x)
         outputs = torch.sigmoid(x)
-
         return outputs
     
     def classify(self, x):
@@ -97,24 +96,26 @@ def optimParameters(
     adam = torch.optim.Adam(params, lr=learning_rate, weight_decay=lambda_val)
     best_loss = 1e10 # High enough to always be lowered by the first loss
 
-        # Train the model
-    for epoch in range(n_epochs):
-        # Initialize Metrics
-        metrics_temp = {
+    metrics = {
             'train_loss': [],
             'val_loss': [],
             'best_epoch': 0
         }
+        # Train the model
+    for epoch in range(n_epochs):
+        
         # Training data
+        train_loss = 0
         for data in train_loader:
             inputs, targets = data
-            outputs = model(inputs.to(device))
-            loss = cross_entropy(outputs, targets.to(device))
+            outputs = model(inputs)
+            loss = cross_entropy(outputs, targets)
 
             adam.zero_grad()
             loss.backward()
             adam.step()
-        metrics_temp['train_loss'].append(loss.cpu().detach().numpy().tolist())
+            train_loss += loss.cpu().detach().numpy().tolist()
+        metrics['train_loss'].append(train_loss)
 
         # Validation data
         val_loss = 0
@@ -122,17 +123,16 @@ def optimParameters(
             inputs, targets = data
             outputs = model(inputs.to(device))
             val_loss += cross_entropy(outputs, targets.to(device))
-        metrics_temp['val_loss'].append(val_loss.cpu().detach().numpy().tolist())
+        metrics['val_loss'].append(val_loss.cpu().detach().numpy().tolist())
 
         # Compare current model with best model
         if val_loss < best_loss:
             best_loss = val_loss
             best_model = copy.deepcopy(model)
             best_epoch = epoch
-            metrics = metrics_temp
-
+        
         # Check for improvements for 50 epochs
-        if epoch > best_epoch + 50:
+        if epoch > best_epoch + 1:
             break
 
         if epoch % 2 == 0:
