@@ -146,7 +146,7 @@ def optimParameters(
             best_epoch = epoch
         
         # Check for improvements for 50 epochs
-        if epoch > best_epoch + 1:
+        if epoch > best_epoch + 50:
             break
 
         if epoch % 20 == 0:
