@@ -13,13 +13,13 @@ if __name__ == "__main__":
 
     # Set model parameters
     model_params = {
-        'lambda': [0.001],   # Array of regularization parameters
+        'lambda': [0, 0.0001, 0.001],   # Array of regularization parameters
         'input_dim': 5,       # Number of input features
         'output_dim': 1,      # Number of outputs
-        'hidden_layers': [1],   # Array of number of hidden layers to be tested
-        'hidden_nodes': [5],    # Array of number of nodes in hidden layers to be tested
-        'activation': 'sigmoid',   # Activation function for neurel network (relu, sigmoid)
-        'learning_rate': 0.01,   # Learning rate for the optimizer
+        'hidden_layers': [1, 10, 20],   # Array of number of hidden layers to be tested
+        'hidden_nodes': [5, 10, 20],    # Array of number of nodes in hidden layers to be tested
+        'activation': 'relu',   # Activation function for neurel network (relu, sigmoid)
+        'learning_rate': 0.001,   # Learning rate for the optimizer
         'generator': True    # Use generator with seed(0) for data loader (True/False)
     }
 

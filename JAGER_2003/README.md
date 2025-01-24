@@ -1,11 +1,15 @@
 # JAGER_2003 ANN Model guide
 This set of scripts can be used to train a model to predict erosion along a braided river. It is based on a neural network described in a paper of Jager, 2003.
 
+To train this model properly it is recommended to run the script ANN_model_initiation.py from the commandline. Aside from this there is an example jupyter notebook which shows the process on how the model is trained and the functions used.
 
 ## Quick Start Guide
 To train this model the following folder Layout is needed. The data folder contains the data from Antonio Magherini his thesis on JamUNet.
 
 ### 1. Folder structure
+
+<div style="background-color: lightgrey;>
+
 * [data](.\data)
     * [satellite](.\data\satellite)
         * [averages](.\data\satellite\averages)
@@ -15,6 +19,8 @@ To train this model the following folder Layout is needed. The data folder conta
         * [undersampled_merged_features.csv](.\JAGER_2003\test_r1_data\undersampled_merged_features.csv)
 * [images](.\images)
 * [models](.\models)
+
+</div>
 
 ### 2. Preprocessing the data
 
