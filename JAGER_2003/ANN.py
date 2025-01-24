@@ -44,6 +44,7 @@ class ANN(nn.Module):
     def forward(self, x):
         x = self.network(x)
         outputs = torch.sigmoid(x)
+        #outputs = torch.where(outputs < 0.5, torch.tensor(0), torch.tensor(1))
         return outputs
     
     def classify(self, x):
@@ -109,21 +110,22 @@ def optimParameters(
         for data in train_loader:
             inputs, targets = data
             outputs = model(inputs)
-            loss = cross_entropy(outputs, targets)
+            loss = torch.nn.BCELoss()(outputs.float(), targets.float())
 
             adam.zero_grad()
             loss.backward()
             adam.step()
-            train_loss += loss.cpu().detach().numpy().tolist()
+            train_loss += loss.cpu().detach().float()/len(outputs)
         metrics['train_loss'].append(train_loss)
 
         # Validation data
         val_loss = 0
         for data in val_loader:
-            inputs, targets = data
-            outputs = model(inputs.to(device))
-            val_loss += cross_entropy(outputs, targets.to(device))
-        metrics['val_loss'].append(val_loss.cpu().detach().numpy().tolist())
+            with torch.no_grad():
+                inputs, targets = data
+                outputs = model(inputs)
+                val_loss += torch.nn.BCELoss()(outputs.float(), targets.float())/len(outputs)
+        metrics['val_loss'].append(val_loss.cpu().detach().float())
 
         # Compare current model with best model
         if val_loss < best_loss:

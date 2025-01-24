@@ -6,7 +6,7 @@ import pandas as pd
 import pickle
 from training_plotter import plot_training
 
-def train_models(path, path2, model_params, test_year):
+def train_models(path, path2, model_params, test_year, path_loc):
     
     # Check if GPU is available
     if torch.cuda.is_available():
@@ -80,18 +80,20 @@ def train_models(path, path2, model_params, test_year):
 
             # Determine the test loss
             t_hat = best_model(X_test_norm)
-            test_loss = cross_entropy(t_hat, T_test)
-            test_loss = test_loss.cpu().detach().numpy()
+            test_loss = torch.nn.BCELoss()(t_hat.float(), T_test.float())/len(t_hat)
+            test_loss = test_loss.cpu().detach().numpy().tolist()
             print(f"Test loss for the best model is: {test_loss}")
 
             # Save the predictions vs the actual values
             df_predictions = pd.DataFrame({
-                'Targets': T_test.cpu().detach().numpy().tolist(), 
-                'Predictions': t_hat.cpu().detach().numpy().tolist(),
+                'year': data_test['year'].values,
+                'Targets': T_test.cpu().detach().numpy().flatten(), 
+                'Predictions': t_hat.cpu().detach().numpy().flatten(),
                 'index_x': data_test['index_x'].values,
                 'index_y': data_test['index_y'].values
                 })
-            
+            df_predictions.loc[:]['area'] = path_loc
+
             df_predictions.to_csv(f"models/predictions_{h_layers}_{h_nodes}_{best_lambda}.csv")
 
             # Save the best model and the metrics
@@ -122,11 +124,11 @@ if __name__ == "__main__":
         'hidden_nodes': [5],    # Array of number of nodes in hidden layers to be tested
         'activation': 'relu',   # Activation function for neurel network
         'learning_rate': 0.01,   # Learning rate for the optimizer
-        'generator': True    # Use generator for data loader (True/False)
+        'generator': True    # Use generator with seed(0) for data loader (True/False)
     }
 
     # Select the year to be used as test data
     test_year = input("Please enter the test year: ") 
     test_year = int(test_year)
 
-    train_models(path, path2, model_params, test_year)
+    train_models(path, path2, model_params, test_year, path_loc)
