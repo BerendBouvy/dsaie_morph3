@@ -37,6 +37,16 @@ class ANN(nn.Module):
                 network.append(nn.ReLU())
             network.append(nn.Linear(self.hidden_nodes, self.output_dim))
 
+        elif activation == 'sigmoid':
+            
+            network = []
+            network.append(nn.Linear(self.input_dim, self.hidden_nodes))
+            network.append(nn.Sigmoid())
+            for i in range(self.hidden_layers-1):
+                network.append(nn.Linear(self.hidden_nodes, self.hidden_nodes))
+                network.append(nn.Sigmoid())
+            network.append(nn.Linear(self.hidden_nodes, self.output_dim))
+            
         else:
             print(f"Activation function {activation} not supported. \nCheck docs for supported activation functions.")    
 

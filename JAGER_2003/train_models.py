@@ -1,5 +1,5 @@
 import numpy as np
-from ANN import ANN, optimParameters, createDataLoader, normUnitvar, cross_entropy
+from ANN import ANN, optimParameters, createDataLoader, normUnitvar
 import copy
 import torch
 import pandas as pd
@@ -7,7 +7,21 @@ import pickle
 from training_plotter import plot_training
 
 def train_models(path, path2, model_params, test_year, path_loc):
-    
+    """Function which trains the model with different hyperparameters and saves the best model, metrics, predictions and loss graph
+
+    Parameters
+    ----------
+    path : str
+        Path to the test data
+    path2 : _type_
+        Path to the training data
+    model_params : _type_
+        Dictionary containing the model parameters, lambda, input_dim, output_dim, hidden_layers, hidden_nodes, activation, learning_rate, generator
+    test_year : int
+        Year to be used as test data
+    path_loc : int
+        Name of the area used to train model
+    """
     # Check if GPU is available
     if torch.cuda.is_available():
         device = torch.device('cuda')
@@ -105,30 +119,4 @@ def train_models(path, path2, model_params, test_year, path_loc):
 
     # Save the training normalizer
     with open("models/data_normalizer_class.pkl", 'wb') as output:
-        pickle.dump(X_normalizer, output, pickle.HIGHEST_PROTOCOL)    
-
-if __name__ == "__main__":
-    # Ask input folder
-    # Due to skewed dataset, the undersampled dataset will be used for training,
-    # The full dataset is used to extract the test data
-    path_loc = input("Please enter the location indicator as test_r? or training_r?: ")
-    path = f"JAGER_2003/{path_loc}_data/merged_features.csv"
-    path2 = f"JAGER_2003/{path_loc}_data/undersampled_merged_features.csv"
-
-    # Set model parameters
-    model_params = {
-        'lambda': [0.001],   # Array of regularization parameters
-        'input_dim': 5,       # Number of input features
-        'output_dim': 1,      # Number of outputs
-        'hidden_layers': [1],   # Array of number of hidden layers to be tested
-        'hidden_nodes': [5],    # Array of number of nodes in hidden layers to be tested
-        'activation': 'relu',   # Activation function for neurel network
-        'learning_rate': 0.01,   # Learning rate for the optimizer
-        'generator': True    # Use generator with seed(0) for data loader (True/False)
-    }
-
-    # Select the year to be used as test data
-    test_year = input("Please enter the test year: ") 
-    test_year = int(test_year)
-
-    train_models(path, path2, model_params, test_year, path_loc)
+        pickle.dump(X_normalizer, output, pickle.HIGHEST_PROTOCOL)
