@@ -132,10 +132,10 @@ def optimParameters(
             best_epoch = epoch
         
         # Check for improvements for 50 epochs
-        if epoch > best_epoch + 1:
+        if epoch > best_epoch + 50:
             break
 
-        if epoch % 2 == 0:
+        if epoch % 20 == 0:
             print(f"Epoch: {epoch}, Validation Loss: {val_loss}")
 
     print(f"Final epoch: {epoch}, loss: {val_loss}, best model at epoch {best_epoch} with loss {best_loss}")
