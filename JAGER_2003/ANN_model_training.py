@@ -80,7 +80,7 @@ def train_models(path, path2, model_params, test_year, path_loc):
 
             # Determine the test loss
             t_hat = best_model(X_test_norm)
-            test_loss = torch.nn.BCELoss()(t_hat.float(), T_test.float())/len(t_hat)
+            test_loss = torch.nn.BCELoss()(t_hat.float(), T_test.float())
             test_loss = test_loss.cpu().detach().numpy().tolist()
             print(f"Test loss for the best model is: {test_loss}")
 
@@ -92,7 +92,7 @@ def train_models(path, path2, model_params, test_year, path_loc):
                 'index_x': data_test['index_x'].values,
                 'index_y': data_test['index_y'].values
                 })
-            df_predictions.loc[:]['area'] = path_loc
+            df_predictions.loc[:, 'area'] = path_loc
 
             df_predictions.to_csv(f"models/predictions_{h_layers}_{h_nodes}_{best_lambda}.csv")
 
