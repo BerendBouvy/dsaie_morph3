@@ -108,8 +108,6 @@ class ImageFeatures:
 
     def river_width(self):
         edt, ind = distance_transform_edt(self.image, return_indices=True)
-        plt.imshow(edt)
-        plt.show()
         river_width = np.zeros_like(self.image)
         for i in range(self.image.shape[0]):
             for j in range(self.image.shape[1]):
