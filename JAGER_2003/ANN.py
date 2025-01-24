@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import copy
+import numpy as np
 
 class ANN(nn.Module):
     def __init__(self, input_dim, output_dim, hidden_layers=1, hidden_nodes=5, activation='relu'):
@@ -106,7 +107,7 @@ def optimParameters(
     for epoch in range(n_epochs):
         
         # Training data
-        train_loss = 0
+        train_loss = []
         for data in train_loader:
             inputs, targets = data
             outputs = model(inputs)
@@ -115,32 +116,33 @@ def optimParameters(
             adam.zero_grad()
             loss.backward()
             adam.step()
-            train_loss += loss.cpu().detach().float()/len(outputs)
-        metrics['train_loss'].append(train_loss)
+            train_loss.append(loss.cpu().detach().float())
+        metrics['train_loss'].append(np.mean(train_loss))
 
         # Validation data
-        val_loss = 0
+        val_loss = []
         for data in val_loader:
             with torch.no_grad():
                 inputs, targets = data
                 outputs = model(inputs)
-                val_loss += torch.nn.BCELoss()(outputs.float(), targets.float())/len(outputs)
-        metrics['val_loss'].append(val_loss.cpu().detach().float())
+                vloss = torch.nn.BCELoss()(outputs.float(), targets.float())
+                val_loss.append(vloss.cpu().detach().float())
+        metrics['val_loss'].append(np.mean(val_loss))
 
         # Compare current model with best model
-        if val_loss < best_loss:
-            best_loss = val_loss
+        if np.mean(val_loss) < best_loss:
+            best_loss = np.mean(val_loss)
             best_model = copy.deepcopy(model)
             best_epoch = epoch
         
         # Check for improvements for 50 epochs
-        if epoch > best_epoch + 50:
+        if epoch > best_epoch + 1:
             break
 
         if epoch % 20 == 0:
-            print(f"Epoch: {epoch}, Validation Loss: {val_loss}")
+            print(f"Epoch: {epoch}, Validation Loss: {np.mean(val_loss)}")
 
-    print(f"Final epoch: {epoch}, loss: {val_loss}, best model at epoch {best_epoch} with loss {best_loss}")
+    print(f"Final epoch: {epoch}, loss: {np.mean(val_loss)}, best model at epoch {best_epoch} with loss {best_loss}")
 
     # Store the best epoch in metrics        
     metrics['best_epoch'] = best_epoch
