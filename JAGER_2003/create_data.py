@@ -53,8 +53,8 @@ if __name__ == "__main__":
     # ask input folder
     # path = input("Please enter the location indicator: ")
     # path = "data/satellite/averages/average_training_" + path
-    # path = "data/satellite/averages/average_testing_r1"
-    # create_data(path)   
+    path = "data/satellite/averages/average_testing_r1"
+    create_data(path)   
     # lst = os.listdir("data/satellite/averages")
     # lst = lst[2:]
     # for path in lst:

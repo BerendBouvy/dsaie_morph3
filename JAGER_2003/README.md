@@ -5,7 +5,7 @@ To train this model properly it is recommended to run the script ANN_model_initi
 
 ## Files
 - imageFeaturesClass.py: Contains the functions needed to extract the features used for training the model from the dataset.
-- create_data.py: Scripts that merges the features from multiple datasets to create a dataset for training, it undersamples the data to create a better balance between the different targets.
+- create_data.py: Scripts that merges the features from multiple datasets to create a dataset for training, it undersamples the data to create a better balance between the different targets. By setting the path in this file, you can indicate where the data is stored and which data to process. It automatically undersamples the data, to get a better balance between different targets.
 - ANN.py: Contains the functions needed to create the neural network and train it.
 - ANN_model_initiation.py: Script that creates the neural network and trains it based on the parameters defined in the script. It can train multiple models, by listing multiple values for each parameter.
 - train_models.py: Contains functions that loops over the different parameters defined in ANN_model_initation.py to create, train and store the different neural networks.
@@ -34,8 +34,10 @@ To train this model the following folder Layout is needed. The data folder conta
 </div>
 
 ### 2. Preprocessing the data
-
-Place the data in a folder named training/test_location_data as indicated in the folder structure., with location as r1, r2, etc and choose between training or test. 
+1. Open ./JAGER_2003/create_data.py to select the dataset to extract features from.
+2. Run the following code in the terminal
+    * <code> python JAGER_2003/create_data.py </code>
+3. Place the data in a folder named ./JAGER_2003/test_location_data or ./JAGER_2003/training_location_data as indicated in the folder structure., with location as r1, r2, etc and choose between training or test. 
 
 ### 3. Training the model
 
