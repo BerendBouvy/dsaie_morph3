@@ -101,4 +101,4 @@ def plot_pred(file):
     print(f"Updated F1 Score: {f1:.2f}")
     
 if __name__ == "__main__":
-    plot_pred("JAGER_2003/predictions_1_5_0.001(2).csv")
+    plot_pred("models/predictions_1_5_0.001.csv")

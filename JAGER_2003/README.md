@@ -11,8 +11,8 @@ To train this model properly it is recommended to run the script ANN_model_initi
 - train_models.py: Contains functions that loops over the different parameters defined in ANN_model_initation.py to create, train and store the different neural networks.
 - Example_ANN_model_creation.ipynb: Notebook, which gives an example of how the neural network can be created and trained. It is not recommended to be used for model training, only to be used for reference.
 - test.py: Contains functions used to test the imageFeaturesClass.py
-- plot_pred.py: 
-- training_plotter.py:
+- plot_pred.py: Script to plot the predictions and the metrics of the saved models.
+- training_plotter.py: Function used to create loss plot and save this plot.
 
 ## Quick Start Guide
 To train this model the following folder Layout is needed. The data folder contains the data from Antonio Magherini his thesis on JamUNet.
@@ -51,7 +51,9 @@ To train this model the following folder Layout is needed. The data folder conta
 
 ### 4. Visualize the predictions
 
+1. Open the file plot_pred.py and select the prediction location you want to visualize from step 3. These are found in the folder models.
+2. Save the file.
+3. Run the following code in the terminal
+    * <code> python JAGER_2003/plot_pred.py </code>
 
-## To do:
-- Write section 1 and 4 of readme. 
 
