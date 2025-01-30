@@ -3,6 +3,17 @@ This set of scripts can be used to train a model to predict erosion along a brai
 
 To train this model properly it is recommended to run the script ANN_model_initiation.py from the commandline. Aside from this there is an example jupyter notebook which shows the process on how the model is trained and the functions used.
 
+## Files
+- imageFeaturesClass.py: Contains the functions needed to extract the features used for training the model from the dataset.
+- create_data.py: Scripts that merges the features from multiple datasets to create a dataset for training, it undersamples the data to create a better balance between the different targets.
+- ANN.py: Contains the functions needed to create the neural network and train it.
+- ANN_model_initiation.py: Script that creates the neural network and trains it based on the parameters defined in the script. It can train multiple models, by listing multiple values for each parameter.
+- train_models.py: Contains functions that loops over the different parameters defined in ANN_model_initation.py to create, train and store the different neural networks.
+- Example_ANN_model_creation.ipynb: Notebook, which gives an example of how the neural network can be created and trained. It is not recommended to be used for model training, only to be used for reference.
+- test.py: Contains functions used to test the imageFeaturesClass.py
+- plot_pred.py: 
+- training_plotter.py:
+
 ## Quick Start Guide
 To train this model the following folder Layout is needed. The data folder contains the data from Antonio Magherini his thesis on JamUNet.
 
