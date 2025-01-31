@@ -1,13 +1,81 @@
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import convolve, distance_transform_edt
 import pandas as pd
 
-
-
-
 class ImageFeatures:
+    """
+    A class to represent and analyze image features related to water bodies.
+    Attributes
+    ----------
+    path : str
+        Path to the CSV file containing the image data.
+    distance : int
+        Number of pixels in each direction to consider for distance calculations.
+    filename : str
+        Name of the file without the extension.
+    year : int
+        Year extracted from the filename.
+    path_next_year : str
+        Path to the CSV file for the next year.
+    area : str
+        Area extracted from the filename.
+    image : np.ndarray
+        2D numpy array representing the image.
+    image_next_year : np.ndarray
+        2D numpy array representing the image for the next year.
+    imagePadded : np.ndarray
+        Padded version of the image with zeros.
+    Methods
+    -------
+    get_year():
+        Returns the year of the image.
+    get_area():
+        Returns the area of the image.
+    get_image():
+        Returns the image as a 2D numpy array.
+    plot_image():
+        Plots the image using matplotlib.
+    euclidean_distance(x1, y1, x2, y2):
+        Calculates the Euclidean distance between two points.
+    angle_between_points(x1, y1, x2, y2):
+        Calculates the angle between two points.
+    amount_of_water_in_range():
+        Determines the number of water pixels in a given distance range of each pixel.
+    mask_water():
+        Masks the water pixels in a given distance range of each pixel.
+    find_possible_pixels(x, y):
+        Finds possible water pixels within a given distance from a specified pixel.
+    closest_water_pixel():
+        Finds the closest water pixel for each pixel in the image.
+    next_year_water(ind):
+        Returns the water pixel value for the next year at the specified index.
+    river_width():
+        Calculates the river width for each pixel in the image.
+    get_features():
+        Extracts and returns various features related to water bodies in the image as a pandas DataFrame.
+    """
+    
     def __init__(self, path, distance):
+        """
+        Initializes the ImageFeatures class with the given path and distance.
+        Parameters:
+        path (str): The file path to the CSV file containing the image data.
+        distance (int): The distance parameter used for padding the image.
+        Attributes:
+        path (str): The file path to the CSV file.
+        distance (int): The distance parameter for padding.
+        filename (str): The name of the file without the '.csv' extension.
+        year (int): The year extracted from the filename.
+        path_next_year (str): The file path for the next year's image data.
+        area (str): The area extracted from the filename.
+        image (ndarray): The image data loaded from the CSV file.
+        image_next_year (ndarray): The image data for the next year loaded from the CSV file.
+        imagePadded (ndarray): The image data padded with zeros based on the distance parameter.
+        """
+        
         self.path = path
         self.distance = distance
         self.filename = path.split('/')[-1].replace('.csv', '')
@@ -19,12 +87,23 @@ class ImageFeatures:
         self.imagePadded = np.pad(self.image, self.distance, mode='constant', constant_values=0)
 
     def get_year(self):
+        """
+        Retrieve the year attribute of the instance.
+        Returns:
+            int: The year associated with the instance.
+        """
         return self.year
     
     def get_area(self):
+        """
+        Returns the area of the image feature.
+        Returns:
+            float: The area of the image feature.
+        """
         return self.area
     
     def get_image(self):
+        
         return self.image
     
     def plot_image(self):
