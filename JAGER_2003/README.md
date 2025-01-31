@@ -4,7 +4,7 @@ This set of scripts can be used to train a model to predict erosion along a brai
 To train this model properly it is recommended to run the script ANN_model_initiation.py from the commandline. Aside from this there is an example jupyter notebook which shows the process on how the model is trained and the functions used.
 
 ## Files
-- imageFeaturesClass.py: Contains the functions needed to extract the features used for training the model from the dataset.
+- imageFeaturesClass.py: Contains the class needed to extract the features used for training the model from the dataset.
 - create_data.py: Scripts that merges the features from multiple datasets to create a dataset for training, it undersamples the data to create a better balance between the different targets. By setting the path in this file, you can indicate where the data is stored and which data to process. It automatically undersamples the data, to get a better balance between different targets.
 - ANN.py: Contains the functions needed to create the neural network and train it.
 - ANN_model_initiation.py: Script that creates the neural network and trains it based on the parameters defined in the script. It can train multiple models, by listing multiple values for each parameter.
