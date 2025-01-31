@@ -242,5 +242,4 @@ def plot_pred(file):
     plt.show()
     
 if __name__ == "__main__":
-    # plot_pred("JAGER_2003/predictions_10_20_0.csv")
-    plot_pred("JAGER_2003/predictions_10_20_0(1).csv")
+    plot_pred("models/predictions_1_5_0.001.csv")
