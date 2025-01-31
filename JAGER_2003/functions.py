@@ -1,3 +1,16 @@
+"""
+This module contains functions for analyzing water pixels in a 2D numpy array image. The functions include:
+1. amount_of_water_in_range(data, distance):
+    Determines the number of water pixels in a given distance range of a pixel.
+2. mask_water(data, distance):
+    Masks the water pixels in a given distance range of each pixel and returns the masked data, number of water pixels in range, and their indices.
+3. distance_to_water(data, pixel_size):
+    Calculates the distance to the nearest water pixel for the center of each land pixel and returns the distance and indices of the nearest water pixel.
+4. angle_to_water(data):
+    Calculates the angle to the nearest water pixel for the center of each land pixel with regard to the North direction.
+5. width_of_river(data, water_direction, nearest_water_pixel, water_in_range, pixel_size):
+    Calculates the width of the river in meters extending from the closest water pixel to the land pixel till it meets a new land pixel in the same direction.
+"""
 import numpy as np
 import pandas as pd
 from scipy.ndimage import convolve
@@ -104,7 +117,6 @@ def angle_to_water(data):
                 angle_degrees = np.degrees(angle)
                 # Store the angle in the water_direction array
                 water_direction[i, j] = angle_degrees
-
     return water_direction
 
 def width_of_river(data, water_direction, nearest_water_pixel, water_in_range, pixel_size):
@@ -180,5 +192,4 @@ def width_of_river(data, water_direction, nearest_water_pixel, water_in_range, p
                 width.append(width_temp)
             
             river_width[i, j] = np.min(width)
-
     return river_width

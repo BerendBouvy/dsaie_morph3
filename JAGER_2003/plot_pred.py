@@ -5,10 +5,23 @@ import numpy as np
 from matplotlib.lines import Line2D
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.metrics import confusion_matrix
+"""
+Plots predictions from an ANN model and compares them with a CNN model and a naive model.
+Parameters:
+file (str): Path to the CSV file containing predictions and targets.
+The function performs the following tasks:
+1. Loads the satellite images and predictions.
+2. Creates color maps for visualizing true positives, true negatives, false positives, and false negatives.
+3. Plots the zoomed-in region of the ANN and CNN predictions.
+4. Plots the difference between ANN and CNN predictions.
+5. Calculates and prints various performance metrics (accuracy, precision, recall, F1 score, and CSI) for the ANN, CNN, and naive models.
+6. Plots the ANN and naive predictions with correct and incorrect classifications (zoomed out).
+The function displays the plots and prints the performance metrics to the console.
+"""
+
 
 def plot_pred(file):
     grey_cmap = ListedColormap(['palegoldenrod', 'navy'])
-
     plt.subplot(1,3,1)
     year = 2021
     area = "average_testing_r1"

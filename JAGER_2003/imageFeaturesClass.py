@@ -1,5 +1,3 @@
-
-
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import convolve, distance_transform_edt
@@ -74,8 +72,7 @@ class ImageFeatures:
         image (ndarray): The image data loaded from the CSV file.
         image_next_year (ndarray): The image data for the next year loaded from the CSV file.
         imagePadded (ndarray): The image data padded with zeros based on the distance parameter.
-        """
-        
+        """        
         self.path = path
         self.distance = distance
         self.filename = path.split('/')[-1].replace('.csv', '')
@@ -103,19 +100,46 @@ class ImageFeatures:
         return self.area
     
     def get_image(self):
-        
+        """
+        Returns the image as a 2D numpy array.
+        Returns:
+            ndarray: The image data as a 2D numpy array.
+        """        
         return self.image
     
     def plot_image(self):
+        """
+        Plots the image using matplotlib
+        """
         plt.imshow(self.image, cmap='gray')
         plt.title(f'Image {self.year} - {self.area}')
         plt.axis('off')
         plt.show()
 
     def euclidean_distance(self, x1, y1, x2, y2):
+        """
+        Calculate the Euclidean distance between two points (x1, y1) and (x2, y2).
+        Parameters:
+        x1 (float): The x-coordinate of the first point.
+        y1 (float): The y-coordinate of the first point.
+        x2 (float): The x-coordinate of the second point.
+        y2 (float): The y-coordinate of the second point.
+        Returns:
+        float: The Euclidean distance between the two points.
+        """
         return np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
     def angle_between_points(self, x1, y1, x2, y2):
+        """
+        Calculate the angle between two points in radians.
+        Parameters:
+        x1 (float): The x-coordinate of the first point.
+        y1 (float): The y-coordinate of the first point.
+        x2 (float): The x-coordinate of the second point.
+        y2 (float): The y-coordinate of the second point.
+        Returns:
+        float: The angle between the two points in radians.
+        """
         return np.arctan2(y2 - y1, x2 - x1)
     
     def amount_of_water_in_range(self):
@@ -155,6 +179,17 @@ class ImageFeatures:
         return masked_data, water_in_range, indices
     
     def find_possible_pixels(self, x, y):
+        """
+        Find the possible pixels around a given (x, y) coordinate within a specified distance.
+        This method searches for pixels with a value of 1 in a padded version of the image,
+        centered around the given (x, y) coordinate, and returns their coordinates.
+        Padding is necessary to avoid index out of bounds errors.
+        Parameters:
+        x (int): The x-coordinate of the center pixel.
+        y (int): The y-coordinate of the center pixel.
+        Returns:
+        tuple: Two numpy arrays containing the x and y coordinates of the possible pixels with a value of 1.
+        """
         padded_x = x + self.distance
         padded_y = y + self.distance
         possible_pixels = self.imagePadded[padded_x - self.distance: padded_x + self.distance + 1, padded_y - self.distance: padded_y + self.distance + 1]
@@ -164,11 +199,18 @@ class ImageFeatures:
         return x_coords, y_coords
 
     def closest_water_pixel(self):
-        masked_data, water_in_range, indices = self.mask_water()
+        """
+        Find the closest water pixel for each pixel in the image.
+        This method identifies the closest water pixel for each land pixel in the image
+        and calculates the distance, angle, and water content in the vicinity of each pixel.
+        Returns:
+        tuple: A tuple containing the indices, locations, distances, angles, and water content for each pixel.
+        """
+        _, water_in_range, indices = self.mask_water()
         locations = []
         distances = []
         angles = []
-
+        # Find the closest water pixel for each land pixel
         for i  in indices:
             possible_pixels = self.find_possible_pixels(*i)
             distances_i = [self.euclidean_distance(i[0], i[1], x, y) for x, y in zip(possible_pixels[0], possible_pixels[1])]
@@ -183,11 +225,27 @@ class ImageFeatures:
         return indices, locations, distances, angles, water_in_range
 
     def next_year_water(self, ind):
+        """
+        Returns the water pixel value for the next year at the specified index.
+        Parameters:
+        ind (tuple): The index of the pixel.
+        Returns:
+        int: The water pixel value for the next year at the specified index.
+        """
         return self.image_next_year[ind[0], ind[1]]
 
     def river_width(self):
+        """
+        Calculate the river width for each pixel in the image.
+        This method calculates the width of the river in meters extending from the closest water pixel to the land pixel
+        until it meets a new land pixel in the same direction. The river width is calculated using the Euclidean Distance
+        Transform (EDT) and the indices of the nearest water pixels.
+        Returns:
+        ndarray: A 2D numpy array containing the river width for each pixel in the image.
+        """
         edt, ind = distance_transform_edt(self.image, return_indices=True)
         river_width = np.zeros_like(self.image)
+        # Calculate the maximum river width for each pixel
         for i in range(self.image.shape[0]):
             for j in range(self.image.shape[1]):
                 if edt[i, j] > river_width[ind[0, i, j], ind[1, i, j]]:
@@ -198,18 +256,42 @@ class ImageFeatures:
 
 
     def get_features(self):
+        """
+        Extracts and returns a DataFrame containing various features related to water pixels in the image.
+        The features include:
+        - Year and area of the image.
+        - Indices (x, y) of the closest water pixels.
+        - Distance to the closest water pixels.
+        - Sine and cosine of the angles to the closest water pixels.
+        - Maximum river width in a 5x5 neighborhood around each water pixel.
+        - Whether there is water in range.
+        - Water presence in the next year for each water pixel.
+        Returns:
+            pd.DataFrame: A DataFrame with the following columns:
+                - 'year': The year of the image.
+                - 'area': The area of the image.
+                - 'index_x': The x-coordinates of the closest water pixels.
+                - 'index_y': The y-coordinates of the closest water pixels.
+                - 'distance': The distances to the closest water pixels.
+                - 'sin_angle': The sine of the angles to the closest water pixels.
+                - 'cos_angle': The cosine of the angles to the closest water pixels.
+                - 'river_width': The maximum river width in a 5x5 neighborhood around each water pixel.
+                - 'water_in_range': Whether there is water in range.
+                - 'next_year_water': Water presence in the next year for each water pixel.
+        """
         indices, locations, distances, angles, water_in_range = self.closest_water_pixel()
-
         next_year_water = [self.next_year_water(i) for i in indices]
         river_width = self.river_width()
         highest_values = []
+        # Calculate the highest river width in a 5x5 neighborhood around each water pixel
+        # This is done because this better represents the width of the river
         for i in locations:
             x, y = i
             x_min, x_max = max(0, x - 2), min(self.image.shape[0], x + 3)
             y_min, y_max = max(0, y - 2), min(self.image.shape[1], y + 3)
             highest_values.append(np.max(river_width[x_min:x_max, y_min:y_max]))
 
-
+        # Create a DataFrame with the extracted features
         df = pd.DataFrame({ 'year': [self.year] * len(indices), 'area': [self.area] * len(indices),
                             'index_x': indices[:, 0], 'index_y': indices[:, 1],
                             'distance': distances, 'sin_angle': np.sin(angles), 

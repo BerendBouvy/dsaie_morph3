@@ -1,3 +1,4 @@
+
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap
 import numpy as np
@@ -5,13 +6,39 @@ import imageFeaturesClass as ifc
 import os
 from scipy.ndimage import distance_transform_edt
 from sklearn.neighbors import KDTree
-
-
+"""
+This script visualizes various features of a satellite image using matplotlib.
+The script performs the following tasks:
+1. Loads a satellite image from a CSV file.
+2. Calculates the amount of water in range for each pixel.
+3. Finds the closest water pixel for each pixel and calculates the distance and angle to it.
+4. Computes the Euclidean distance transform of the image.
+5. Calculates the river width for each pixel.
+The script then plots the following four subplots:
+1. Amount of water in range.
+2. Distance to the closest water pixel.
+3. Angle to the closest water pixel.
+4. River width.
+Modules:
+    - matplotlib.pyplot: For plotting the images.
+    - matplotlib.colors: For creating custom colormaps.
+    - numpy: For numerical operations.
+    - imageFeaturesClass: Custom module for image feature extraction.
+    - os: For interacting with the operating system.
+    - scipy.ndimage: For computing the distance transform.
+    - sklearn.neighbors: For building a KD-Tree.
+Functions:
+    - main: The main function that executes the script.
+Usage:
+    Run the script directly to generate the plots.
+"""
 if __name__ == "__main__":
+    # Load the satellite image from a CSV file
     path = "data/satellite/averages/average_testing_r1/average_2020_testing_r1.csv"
     image = ifc.ImageFeatures(path, 7)
     grey_cmap = ListedColormap(['palegoldenrod', 'navy'])
     plt.subplot(1,4,1)
+    # Calculate the amount of water in range for each pixel
     water_in_range = image.amount_of_water_in_range()
     ind , _, distance, angle, _ = image.closest_water_pixel()
     zero = np.zeros_like(image.get_image())
@@ -69,22 +96,3 @@ if __name__ == "__main__":
     
     
 
-# # Example coordinates for set A and B
-# x_coords_A = np.array([1, 3, 5])
-# y_coords_A = np.array([2, 4, 6])
-# x_coords_B = np.array([7, 9, 11])
-# y_coords_B = np.array([8, 10, 12])
-
-# # Combine x and y coordinates into 2D arrays (n, 2), where n is the number of points
-# set_A = np.vstack((x_coords_A, y_coords_A)).T  # Transpose to get shape (n, 2)
-# set_B = np.vstack((x_coords_B, y_coords_B)).T  # Transpose to get shape (n, 2)
-
-# # Build KD-Tree for set B
-# tree = KDTree(set_B)
-
-# # For each point in set A, find the closest point in set B
-# distances, indices = tree.query(set_A, k=1)
-
-# # Print the closest points in set B
-# for i, idx in enumerate(indices):
-#     print(f"Point {set_A[i]} is closest to point {set_B[idx]} with distance {distances[i]}")
