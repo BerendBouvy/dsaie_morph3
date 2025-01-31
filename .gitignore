@@ -29,3 +29,7 @@
 data/
 *.pyc
 JAGER_2003/__pycache__/
+jamunet-morpho-braided-main/data/
+jamunet-morpho-braided-main/model/__pycache__/
+jamunet-morpho-braided-main/model/postprocessing/__pycache__/
+jamunet-morpho-braided-main/model/preprocessing/__pycache__/
